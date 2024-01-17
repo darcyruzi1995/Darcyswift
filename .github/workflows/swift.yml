@@ -20,3 +20,13 @@ jobs:
       run: swift build -v
     - name: Run tests
       run: swift test -v
+
+
+struct Meal {
+    let id: String
+    let name: String
+    let instructions: String
+    let ingredients: [String]
+    let measurements: [String]
+}
+
