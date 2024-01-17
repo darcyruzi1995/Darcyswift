@@ -58,7 +58,7 @@ class ViewController: UIViewController {
                         self.meals = meals.sorted(by: { $0.name < $1.name })
                         // Update UI on the main queue
                         DispatchQueue.main.async {
-                            // Reload table view or update UI with meals
+                            // update UI with meals
                         }
                     }
                 } catch {
@@ -81,7 +81,7 @@ class ViewController: UIViewController {
                     let decoder = JSONDecoder()
                     let response = try decoder.decode(MealsResponse.self, from: data)
                     if let meal = response.meals?.first {
-                        // Display meal details in another view controller or UI
+                        // Display meal details in another view controller
                     }
                 } catch {
                     print("Error decoding JSON: \(error.localizedDescription)")
