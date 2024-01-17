@@ -80,3 +80,15 @@ class NetworkManager {
 }
 
 
+import UIKit
+
+class MealListViewController: UIViewController {
+    // Implement your UI to display the list of meals and handle user selection
+}
+
+class MealDetailViewController: UIViewController {
+    // Implement your UI to display the meal details
+}
+
+
+
