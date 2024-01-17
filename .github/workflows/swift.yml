@@ -22,6 +22,7 @@ jobs:
       run: swift test -v
 
 
+
 struct Meal {
     let id: String
     let name: String
@@ -31,14 +32,21 @@ struct Meal {
 }
 
 
-class NetworkManager {
-    static let shared = NetworkManager()
+import UIKit
 
-    func fetchMeals(completion: @escaping ([Meal]?, Error?) -> Void) {
+class ViewController: UIViewController {
+    private var meals: [Meal] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        fetchMeals()
+    }
+
+    private func fetchMeals() {
         let url = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?c=Dessert")!
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                completion(nil, error)
+                print("Error fetching meals: \(error.localizedDescription)")
                 return
             }
 
@@ -46,19 +54,25 @@ class NetworkManager {
                 do {
                     let decoder = JSONDecoder()
                     let response = try decoder.decode(MealsResponse.self, from: data)
-                    completion(response.meals, nil)
+                    if let meals = response.meals {
+                        self.meals = meals.sorted(by: { $0.name < $1.name })
+                        // Update UI on the main queue
+                        DispatchQueue.main.async {
+                            // Reload table view or update UI with meals
+                        }
+                    }
                 } catch {
-                    completion(nil, error)
+                    print("Error decoding JSON: \(error.localizedDescription)")
                 }
             }
         }.resume()
     }
 
-    func fetchMealDetails(byId id: String, completion: @escaping (Meal?, Error?) -> Void) {
-        let url = URL(string: "https://www.themealdb.com/api/json/v1/1/lookup.php?i=\(id)")!
+    private func fetchMealDetails(for mealId: String) {
+        let url = URL(string: "https://www.themealdb.com/api/json/v1/1/lookup.php?i=\(mealId)")!
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                completion(nil, error)
+                print("Error fetching meal details: \(error.localizedDescription)")
                 return
             }
 
@@ -67,33 +81,20 @@ class NetworkManager {
                     let decoder = JSONDecoder()
                     let response = try decoder.decode(MealsResponse.self, from: data)
                     if let meal = response.meals?.first {
-                        completion(meal, nil)
-                    } else {
-                        completion(nil, nil)
+                        // Display meal details in another view controller or UI
                     }
                 } catch {
-                    completion(nil, error)
+                    print("Error decoding JSON: \(error.localizedDescription)")
                 }
             }
         }.resume()
     }
 }
 
-
-import UIKit
-
-class MealListViewController: UIViewController {
-    // Implement your UI to display the list of meals and handle user selection
-}
-
-class MealDetailViewController: UIViewController {
-    // Implement your UI to display the meal details
-}
-
-
 struct MealsResponse: Codable {
     let meals: [Meal]?
 }
+
 
 
 
