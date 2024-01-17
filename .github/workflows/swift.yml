@@ -30,3 +30,53 @@ struct Meal {
     let measurements: [String]
 }
 
+
+class NetworkManager {
+    static let shared = NetworkManager()
+
+    func fetchMeals(completion: @escaping ([Meal]?, Error?) -> Void) {
+        let url = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?c=Dessert")!
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+
+            if let data = data {
+                do {
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(MealsResponse.self, from: data)
+                    completion(response.meals, nil)
+                } catch {
+                    completion(nil, error)
+                }
+            }
+        }.resume()
+    }
+
+    func fetchMealDetails(byId id: String, completion: @escaping (Meal?, Error?) -> Void) {
+        let url = URL(string: "https://www.themealdb.com/api/json/v1/1/lookup.php?i=\(id)")!
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+
+            if let data = data {
+                do {
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(MealsResponse.self, from: data)
+                    if let meal = response.meals?.first {
+                        completion(meal, nil)
+                    } else {
+                        completion(nil, nil)
+                    }
+                } catch {
+                    completion(nil, error)
+                }
+            }
+        }.resume()
+    }
+}
+
+
